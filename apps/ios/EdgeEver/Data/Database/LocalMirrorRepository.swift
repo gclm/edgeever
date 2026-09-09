@@ -113,6 +113,12 @@ final class LocalMirrorRepository: @unchecked Sendable {
                 let pattern = "%\(q)%"
                 arguments.append(contentsOf: [pattern, pattern, pattern])
             }
+            if let tag = params.tag?.trimmingCharacters(in: .whitespacesAndNewlines), !tag.isEmpty {
+                conditions.append(
+                    "EXISTS (SELECT 1 FROM json_each(mobile_memos.data_json, '$.tags') AS memo_tag WHERE LOWER(CAST(memo_tag.value AS TEXT)) = LOWER(?))"
+                )
+                arguments.append(tag)
+            }
             switch params.filter {
             case .all: break
             case .tagged: conditions.append("tags_text <> ''")

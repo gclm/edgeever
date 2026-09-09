@@ -348,4 +348,12 @@ describe("diagram auto layout", () => {
       minScale: DIAGRAM_READABLE_MIN_SCALE,
     });
   });
+
+  test("keeps flowchart viewports at reading size instead of shrinking the whole stack", () => {
+    expect(getDiagramLayoutViewport("flowchart")).toEqual({
+      anchor: "center",
+      maxScale: 1,
+      minScale: 0.85,
+    });
+  });
 });
