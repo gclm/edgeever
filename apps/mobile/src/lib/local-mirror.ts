@@ -117,6 +117,12 @@ export const listLocalMemos = async (scope: string, params: LocalMemoListParams)
     const q = `%${params.q.trim()}%`;
     binds.push(q, q, q);
   }
+  if (params.tag?.trim()) {
+    conditions.push(
+      "EXISTS (SELECT 1 FROM json_each(mobile_memos.data_json, '$.tags') AS memo_tag WHERE LOWER(CAST(memo_tag.value AS TEXT)) = LOWER(?))"
+    );
+    binds.push(params.tag.trim());
+  }
   if (params.filter === "tagged") {
     conditions.push("tags_text <> ''");
   } else if (params.filter === "untagged") {
