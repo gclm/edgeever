@@ -144,6 +144,36 @@ final class PreferencesStore {
         return AiAssistantLastActionStore()
     }
 
+    func lastAiAssistantAction(isSelection: Bool) -> AiAssistantLastActionPreference? {
+        isSelection ? aiAssistantLastActionStore.selected : aiAssistantLastActionStore.wholeNote
+    }
+
+    func setLastAiAssistantAction(_ preference: AiAssistantLastActionPreference, isSelection: Bool) {
+        if isSelection {
+            aiAssistantLastActionStore.selected = preference
+        } else {
+            aiAssistantLastActionStore.wholeNote = preference
+        }
+    }
+
+    private func persistAiAssistantLastAction() {
+        if let data = try? JSONEncoder().encode(aiAssistantLastActionStore),
+           let raw = String(data: data, encoding: .utf8) {
+            defaults.set(raw, forKey: Keys.aiAssistantLastAction)
+        }
+    }
+
+    private static func decodeAiAssistantLastActionStore(_ raw: String?) -> AiAssistantLastActionStore {
+        guard let raw, let data = raw.data(using: .utf8) else { return AiAssistantLastActionStore() }
+        if let store = try? JSONDecoder().decode(AiAssistantLastActionStore.self, from: data) {
+            return store
+        }
+        if let legacy = try? JSONDecoder().decode(AiAssistantLastActionPreference.self, from: data) {
+            return AiAssistantLastActionStore(wholeNote: legacy)
+        }
+        return AiAssistantLastActionStore()
+    }
+
     private enum Keys {
         static let locale = "edgeever.ios.locale"
         static let compression = "edgeever.ios.imageCompression"
